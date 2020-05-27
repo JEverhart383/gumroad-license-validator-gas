@@ -6,7 +6,7 @@ function onOpen() {
         menu.addItem('Activate License', 'GumroadLicenseValidator.showLicenseKeyPrompt')
       }
       menu.addItem('Clear Props', 'GumroadLicenseValidator.deleteLicenseFromProps')
-      menu.addItem('Show Props', 'GumroadLicenseValidator.showProps')
+      menu.addItem('License Details', 'GumroadLicenseValidator.showProps')
       menu.addItem('Standard Function', 'standardFunction')
       menu.addItem('Premium Function', 'premiumFunction')
       menu.addToUi();
