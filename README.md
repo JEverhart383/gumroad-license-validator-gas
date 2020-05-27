@@ -1,4 +1,5 @@
 # Gumroad License Validation Library for Google Apps Script
+[![clasp](https://img.shields.io/badge/built%20with-clasp-4285f4.svg)](https://github.com/google/clasp)
 
 This library exists with a pretty singular focus, namely helping people who are making add-ons or other products with Google Apps Script monetize their solutions using Gumroad licensing.
 
