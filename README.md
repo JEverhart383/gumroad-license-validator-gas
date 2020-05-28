@@ -6,3 +6,5 @@ This library exists with a pretty singular focus, namely helping people who are 
 The library itself has a few helpful methods for actual validating the license code, showing default UI prompts to activate a license, storing the license details in the properties for the script, user, or document, and invaldating the license.
 
 ## Getting Started
+
+All of the library methods are available on the `GumroadLicenseValidator` identified
