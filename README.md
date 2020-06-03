@@ -7,4 +7,4 @@ The library itself has a few helpful methods for actual validating the license c
 
 ## Getting Started
 
-All of the library methods are available on the `GumroadLicenseValidator` identified
+All of the library methods are statically available on the `GumroadLicenseValidator` class
