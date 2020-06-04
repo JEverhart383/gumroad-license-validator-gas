@@ -7,6 +7,7 @@ function onOpen() {
       }
       menu.addItem('Clear Props', 'GumroadLicenseValidator.deleteLicenseFromProps')
       menu.addItem('License Details', 'GumroadLicenseValidator.showProps')
+      menu.addItem('Buy Now', 'GumroadLicenseValidator.showBuyModal')
       menu.addItem('Standard Function', 'standardFunction')
       menu.addItem('Premium Function', 'premiumFunction')
       menu.addToUi();
@@ -25,29 +26,37 @@ function premiumFunction() {
 }
 
 export default class GumroadLicenseValidator {
-  private static GUMROAD_URL:string = 'https://api.gumroad.com/v2/licenses/verify';
+  private static URL:string = 'https://api.gumroad.com/v2/licenses/verify';
   /**
    * CONFIGURE THESE VALUES
    * **/
-  private static GUMROAD_PRODUCT_PERMALINK: string = 'yyTnc';
+  // private static PRODUCT_PERMALINK: string = 'yyTnc';
+  private static PRODUCT_PERMALINK: string = 'AEFYq';
   private static DOCUMENT_CONTAINER = SpreadsheetApp
   private static PROPERTY_STORE = PropertiesService.getScriptProperties()
-  private GUMROAD_INCREMENT_USES_COUNT:boolean = true;
-  private static GUMROAD_MAX_NUMBER_OF_USES:number = 1;
+  private static INCREMENT_USES_COUNT:boolean = true;
+  private static MAX_NUMBER_OF_USES:number = 1;
+  private static IS_SUBSCRIPTION: boolean = false;
 
   public static isLicenseValid (): boolean{
     const licenseDetails = GumroadLicenseValidator.getLicenseDetails();
     if (licenseDetails) {
       const gumroadResponse = JSON.parse(licenseDetails);
-      Logger.log(gumroadResponse)
-      if (gumroadResponse.success === true ){
-        if(gumroadResponse.uses > GumroadLicenseValidator.GUMROAD_MAX_NUMBER_OF_USES) {
-          Logger.log('inside else')
+      if (gumroadResponse.success === true
+        && gumroadResponse.refunded === false
+        && gumroadResponse.disputed === false
+        && gumroadResponse.chargebacked === false ){
+        if(GumroadLicenseValidator.INCREMENT_USES_COUNT && gumroadResponse.uses > GumroadLicenseValidator.MAX_NUMBER_OF_USES) {
           return false
-        } else {
-          Logger.log('inside else')
-          return true
         }
+        if (GumroadLicenseValidator.IS_SUBSCRIPTION 
+          && gumroadResponse.subscription_cancelled_at !== null
+          && gumroadResponse.subscription_failed_at !== null) {
+            return false
+          }
+        
+        return true
+
       } else {
         return false
       }
@@ -56,10 +65,10 @@ export default class GumroadLicenseValidator {
   }
 
   public static validateLicense(licenseKey) {
-      const response = UrlFetchApp.fetch(`${this.GUMROAD_URL}`, {
+      const response = UrlFetchApp.fetch(`${this.URL}`, {
         method: 'post',
         payload: {
-          product_permalink: this.GUMROAD_PRODUCT_PERMALINK,
+          product_permalink: this.PRODUCT_PERMALINK,
           license_key: licenseKey
         },
         muteHttpExceptions: true
@@ -108,10 +117,13 @@ export default class GumroadLicenseValidator {
     const license = GumroadLicenseValidator.getLicenseDetails()
     ui.alert(license || 'Props are empty');
   }
-
-  public getLicenseFromProps(){
-
+  public static showBuyModal() {
+    const ui = GumroadLicenseValidator.DOCUMENT_CONTAINER.getUi(); // Same variations.
+    var htmlOutput = HtmlService
+    .createHtmlOutputFromFile('index')
+    .setWidth(450)
+    .setHeight(700);
+    ui.showModalDialog(htmlOutput, 'Buy Now')
   }
-
 
 }
