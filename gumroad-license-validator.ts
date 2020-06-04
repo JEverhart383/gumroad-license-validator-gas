@@ -25,16 +25,15 @@ function premiumFunction() {
 }
 
 export default class GumroadLicenseValidator {
+  private static GUMROAD_URL:string = 'https://api.gumroad.com/v2/licenses/verify';
   /**
    * CONFIGURE THESE VALUES
-   * 
    * **/
-  private static GUMROAD_URL:string = 'https://api.gumroad.com/v2/licenses/verify';
   private static GUMROAD_PRODUCT_PERMALINK: string = 'yyTnc';
   private static DOCUMENT_CONTAINER = SpreadsheetApp
   private static PROPERTY_STORE = PropertiesService.getScriptProperties()
   private GUMROAD_INCREMENT_USES_COUNT:boolean = true;
-  private GUMROAD_MAX_NUMBER_OF_USES:number = 1;
+  private static GUMROAD_MAX_NUMBER_OF_USES:number = 1;
 
   public static isLicenseValid (): boolean{
     const licenseDetails = GumroadLicenseValidator.getLicenseDetails();
@@ -42,7 +41,13 @@ export default class GumroadLicenseValidator {
       const gumroadResponse = JSON.parse(licenseDetails);
       Logger.log(gumroadResponse)
       if (gumroadResponse.success === true ){
-        return true
+        if(gumroadResponse.uses > GumroadLicenseValidator.GUMROAD_MAX_NUMBER_OF_USES) {
+          Logger.log('inside else')
+          return false
+        } else {
+          Logger.log('inside else')
+          return true
+        }
       } else {
         return false
       }
@@ -59,7 +64,9 @@ export default class GumroadLicenseValidator {
         },
         muteHttpExceptions: true
       })
-      return response.getContentText()
+      const license = response.getContentText()
+      GumroadLicenseValidator.setLicenseInProps(license)
+      return license
   }
 
   public static setLicenseInProps(license) {
@@ -82,13 +89,12 @@ export default class GumroadLicenseValidator {
     
       // Process the user's response.
       var button = result.getSelectedButton();
-      var license = result.getResponseText();
+      var licenseKey = result.getResponseText();
       if (button == ui.Button.OK) {
         //Here we will validate
-        const response = GumroadLicenseValidator.validateLicense(license)
-        GumroadLicenseValidator.setLicenseInProps(response)
+        const licenseResponse = GumroadLicenseValidator.validateLicense(licenseKey)
         // User clicked "OK".
-        ui.alert('Your license details are: ' + response + '.');
+        ui.alert('Your license details are: ' + licenseResponse + '.');
       } else if (button == ui.Button.CANCEL) {
         // User clicked "Cancel".
         ui.alert('Certain features of this product won\'t work until you activate your license.');
@@ -99,8 +105,8 @@ export default class GumroadLicenseValidator {
   }
   public static showProps() {
     const ui = GumroadLicenseValidator.DOCUMENT_CONTAINER.getUi(); // Same variations.
-    const props = GumroadLicenseValidator.getLicenseDetails()
-    ui.alert(props || 'Props are empty');
+    const license = GumroadLicenseValidator.getLicenseDetails()
+    ui.alert(license || 'Props are empty');
   }
 
   public getLicenseFromProps(){
